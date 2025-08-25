@@ -14,27 +14,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PinSetupViewModel @Inject constructor(
+class RegisterPinViewModel @Inject constructor(
     private val validatePin: ValidatePinStrengthUseCase,
     private val savePin: SavePinUseCase,
-    private val isRecoveryCodeShownUseCase: IsRecoveryCodeShownUseCase,
 ) : ViewModel() {
 
-    companion object {
-        private const val TAG = "PinSetupViewModel"
+    companion object Companion {
+        private const val TAG = "RegisterPinViewModel"
     }
 
-    private val _ui = MutableStateFlow(PinSetupUiState())
-    val ui: StateFlow<PinSetupUiState> = _ui
+    private val _ui = MutableStateFlow(RegisterPinUiState())
+    val ui: StateFlow<RegisterPinUiState> = _ui
 
     init {
         Log.d(TAG, "init: ${hashCode()}")
-        // Optional: if already set, mark complete
-        viewModelScope.launch {
-            if (isRecoveryCodeShownUseCase()) {
-                _ui.update { it.copy(isPinSetupCompleted = true) }
-            }
-        }
     }
 
     fun onPinChanged(value: String) {
@@ -60,7 +53,7 @@ class PinSetupViewModel @Inject constructor(
             _ui.update { it.copy(isSaving = true, error = null) }
             try {
                 savePin(state.pin)
-                _ui.update { it.copy(isSaving = false, proceedNext = true) }
+                _ui.update { it.copy(isSaving = false, `continue` = true) }
             } catch (t: Throwable) {
                 _ui.update { it.copy(isSaving = false, error = t.message ?: "Failed to save PIN") }
             }

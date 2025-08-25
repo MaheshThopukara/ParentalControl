@@ -30,7 +30,7 @@ class PinLoginViewModel @Inject constructor(
             if (isValid) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    proceedNext = true
+                    success = true
                 )
             } else {
                 _uiState.value = _uiState.value.copy(

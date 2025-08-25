@@ -1,12 +1,15 @@
 package com.mahesh.parentalcontrol.data.repository
 
 import android.content.Context
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.mahesh.parentalcontrol.core.security.PinCrypto
 import com.mahesh.parentalcontrol.domain.repository.RecoveryCodeRepository
 import kotlinx.coroutines.flow.first
 
 class RecoveryCodeRepositoryImpl(private val context: Context) : RecoveryCodeRepository {
+
+    companion object {
+        private const val TAG = "RecoveryCodeRepositoryImpl"
+    }
 
     private val ds get() = context.recoveryDataStore
 
@@ -25,9 +28,9 @@ class RecoveryCodeRepositoryImpl(private val context: Context) : RecoveryCodeRep
 
     override suspend fun verify(input: String): Boolean {
         val prefs = ds.data.first()
-        val hash = prefs[stringPreferencesKey("recovery_hash")] ?: return false
-        val salt = prefs[stringPreferencesKey("recovery_salt")] ?: return false
-        val iter = prefs[stringPreferencesKey("recovery_iter")]?.toIntOrNull() ?: 10000
+        val hash = prefs[RecoveryKeys.HASH] ?: return false
+        val salt = prefs[RecoveryKeys.SALT] ?: return false
+        val iter = prefs[RecoveryKeys.ITER]?.toIntOrNull() ?: 10000
         return PinCrypto.verify(input, PinCrypto.PinHash(hash, salt, iter))
     }
 

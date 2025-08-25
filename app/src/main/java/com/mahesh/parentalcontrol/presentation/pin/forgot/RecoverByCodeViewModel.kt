@@ -11,11 +11,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RecoverPinByCodeViewModel @Inject constructor(
+class RecoverByCodeViewModel @Inject constructor(
     private val verifyRecoveryCode: VerifyRecoveryCodeUseCase
 ) : ViewModel() {
-    private val _ui = MutableStateFlow(RecoverPinByCodeUiState())
-    val ui: StateFlow<RecoverPinByCodeUiState> = _ui
+    private val _ui = MutableStateFlow(RecoverByCodeUiState())
+    val ui: StateFlow<RecoverByCodeUiState> = _ui
 
     fun onCodeChanged(raw: String) {
         _ui.update { it.copy(code = formatRecoveryCode(raw), error = null) }

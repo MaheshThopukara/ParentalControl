@@ -2,7 +2,7 @@ package com.mahesh.parentalcontrol.presentation.pin.forgot
 
 import com.mahesh.parentalcontrol.domain.model.SecurityQuestion
 
-data class RecoverPinBySQUiState(
+data class RecoverByQuestionsUiState(
     val questions: List<SecurityQuestion> = emptyList(),
     val answers: Map<String, String> = emptyMap(), // key -> input
     val isSubmitting: Boolean = false,

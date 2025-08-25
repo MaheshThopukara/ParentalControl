@@ -12,13 +12,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SecuritySetupViewModel @Inject constructor(
+class SecurityQuestionsSetupViewModel @Inject constructor(
     private val getQuestions: GetSecurityQuestionsUseCase,
     private val saveAnswers: SaveSecurityAnswersUseCase
 ) : ViewModel() {
 
-    private val _ui = MutableStateFlow(SecuritySetupUiState())
-    val ui: StateFlow<SecuritySetupUiState> = _ui
+    private val _ui = MutableStateFlow(SecurityQuestionsSetupUiState())
+    val ui: StateFlow<SecurityQuestionsSetupUiState> = _ui
 
     init {
         viewModelScope.launch {
@@ -42,7 +42,7 @@ class SecuritySetupViewModel @Inject constructor(
             _ui.update { it.copy(isSaving = true, error = null) }
             try {
                 saveAnswers(st.answers)
-                _ui.update { it.copy(isSaving = false, proceedNext = true) }
+                _ui.update { it.copy(isSaving = false, `continue` = true) }
             } catch (t: Throwable) {
                 _ui.update { it.copy(isSaving = false, error = t.message ?: "Failed to save answers") }
             }

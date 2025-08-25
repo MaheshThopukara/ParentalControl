@@ -4,35 +4,47 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.ui.NavDisplay
-import com.mahesh.parentalcontrol.presentation.appblock.AppBlockListScreen
-import com.mahesh.parentalcontrol.presentation.apptime.AppUsageScreen
-import com.mahesh.parentalcontrol.presentation.dashboard.DashboardScreen
-import com.mahesh.parentalcontrol.presentation.devicetime.DeviceTimeLimitScreen
-import com.mahesh.parentalcontrol.presentation.navigation.Screen
+import androidx.compose.runtime.collectAsState
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
+import com.mahesh.parentalcontrol.presentation.Route
+import com.mahesh.parentalcontrol.presentation.appblock.AppBlockListRoute
+import com.mahesh.parentalcontrol.presentation.apptime.AppTimeLimitRoute
+import com.mahesh.parentalcontrol.presentation.dashboard.DashboardRoute
+import com.mahesh.parentalcontrol.presentation.devicetime.DeviceTimeLimitRoute
 import com.mahesh.parentalcontrol.presentation.pin.forgot.ForgotPinOptionsScreen
-import com.mahesh.parentalcontrol.presentation.pin.forgot.RecoverPinByCodeScreen
-import com.mahesh.parentalcontrol.presentation.pin.forgot.RecoverPinBySecurityQuestionsScreen
-import com.mahesh.parentalcontrol.presentation.pin.login.PinLoginScreen
-import com.mahesh.parentalcontrol.presentation.pin.register.PinSetupScreen
-import com.mahesh.parentalcontrol.presentation.pin.questions.SecurityQuestionsSetupScreen
-import com.mahesh.parentalcontrol.presentation.pin.recoverycode.RecoveryCodeScreen
+import com.mahesh.parentalcontrol.presentation.pin.forgot.RecoverByCodeRoute
+import com.mahesh.parentalcontrol.presentation.pin.forgot.RecoverByQuestionsRoute
+import com.mahesh.parentalcontrol.presentation.pin.login.PinLoginRoute
+import com.mahesh.parentalcontrol.presentation.pin.questions.SecurityQuestionsSetupRoute
+import com.mahesh.parentalcontrol.presentation.pin.recoverycode.RecoveryCodeRoute
+import com.mahesh.parentalcontrol.presentation.pin.register.RegisterPinRoute
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
+    private val vm: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val state = vm.authState.collectAsState()
             MaterialTheme {
-                AppNavGraph() {
-                    finish()
+                if (state.value.hasLoginDetails != null) {
+                    AppNav(state.value.hasLoginDetails == true) {
+                        finish()
+                    }
                 }
             }
         }
@@ -40,112 +52,141 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavGraph(onCloseActivity: () -> Unit) {
-    val backStack = remember { mutableStateListOf<Screen>(Screen.PinSetup) }
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = { route ->
-            when (route) {
-                Screen.PinSetup -> NavEntry(route) {
-                    PinSetupScreen(
-                        onPinAlreadySetup = {
-                            backStack.removeLastOrNull()
-                            backStack.add(Screen.PinLogin)
-                        },
-                        onProceedNext = { backStack.add(Screen.SecurityQuestionsSetup) },
-                        onNavigationIconClick = {
-                            onCloseActivity()
+fun AppNav(
+    hasLoginDetails: Boolean,
+    finish: () -> Unit,
+) {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = Route.AuthGraph.value,
+    ) {
+        // Auth flow
+        navigation(
+            startDestination = if (hasLoginDetails) Route.EnterLogin.value else Route.Register.value,
+            route = Route.AuthGraph.value
+        ) {
+            // LOGIN
+            composable(Route.EnterLogin.value) {
+                PinLoginRoute(
+                    onLoginSuccess = {
+                        navController.navigate(Route.MainGraph.value) {
+                            popUpTo(Route.AuthGraph.value) {
+                                inclusive = true
+                            }
                         }
-                    )
-                }
+                    },
+                    onForgotPassword = {
+                        navController.navigate(Route.RecoveryOptions.value)
+                    },
+                    onNavigationIconClick = { finish() }
+                )
+            }
 
-                Screen.SecurityQuestionsSetup -> NavEntry(route) {
-                    SecurityQuestionsSetupScreen(
-                        onProceedNext = { backStack.add(Screen.GenerateRecoveryCode) },
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
-
-                Screen.GenerateRecoveryCode -> NavEntry(route) {
-                    RecoveryCodeScreen(
-                        onProceedNext = { backStack.add(Screen.PinLogin) },
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
-
-                Screen.PinLogin -> NavEntry(route) {
-                    PinLoginScreen(
-                        onProceedNext = {
-                            backStack.removeLastOrNull()
-                            backStack.add(Screen.Dashboard)
-                        },
-                        onForgotPassword = { backStack.add(Screen.ForgotPinOptions) },
-                        onNavigationIconClick = { onCloseActivity() },
-                    )
-                }
-
-                Screen.ForgotPinOptions -> NavEntry(route) {
-                    ForgotPinOptionsScreen(
-                        onRecoverWithQuestions = {
-                            backStack.add(Screen.RecoverWithQuestions)
-                        },
-                        onRecoverWithCode = {
-                            backStack.add(Screen.RecoverWithCode)
-                        },
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
-
-                Screen.RecoverWithQuestions -> NavEntry(route) {
-                    RecoverPinBySecurityQuestionsScreen(
-                        onProceedNext = { backStack.add(Screen.PinSetup) },
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
-
-                Screen.RecoverWithCode -> NavEntry(route) {
-                    RecoverPinByCodeScreen(
-                        onProceedNext = { backStack.add(Screen.PinSetup) },
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
-
-                Screen.Dashboard -> NavEntry(route) {
-                    DashboardScreen(
-                        onDeviceLimitClick = {
-                            backStack.add(Screen.DeviceLimit)
-                        },
-                        onAppLimitClick = {
-                            backStack.add(Screen.AppLimit)
-                        },
-                        onBlocklistClick = {
-                            backStack.add(Screen.AppBlocklist)
-                        },
-                        onNavigationIconClick = {
-                            onCloseActivity()
+            // REGISTER first-time flow
+            composable(Route.Register.value) {
+                RegisterPinRoute(
+                    onContinue = {
+                        navController.navigate(Route.SecurityQuestions.value)
+                    },
+                    onNavigationIconClick = { finish() }
+                )
+            }
+            composable(Route.SecurityQuestions.value) {
+                SecurityQuestionsSetupRoute(
+                    onContinue = {
+                        navController.navigate(Route.RecoveryPassword.value)
+                    },
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
+            composable(Route.RecoveryPassword.value) {
+                RecoveryCodeRoute(
+                    onContinue = {
+                        navController.navigate(Route.EnterLogin.value) {
+                            popUpTo(Route.AuthGraph.value) {
+                                inclusive = false
+                            }
                         }
-                    )
-                }
+                    },
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
 
-                Screen.AppBlocklist -> NavEntry(route) {
-                    AppBlockListScreen(
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
+            // RECOVERY flow
+            composable(Route.RecoveryOptions.value) {
+                ForgotPinOptionsScreen(
+                    onRecoverWithQuestions = {
+                        navController.navigate(Route.RecoverBySecurityQuestions.value)
+                    },
+                    onRecoverWithCode = {
+                        navController.navigate(Route.RecoverByCode.value)
+                    },
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
+            composable(Route.RecoverBySecurityQuestions.value) {
+                RecoverByQuestionsRoute(
+                    onContinue = {
+                        navController.navigate(Route.Register.value) {
+                            popUpTo(Route.AuthGraph.value) {
+                                inclusive = false
+                            }
+                        }
+                    },
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
+            composable(Route.RecoverByCode.value) {
+                RecoverByCodeRoute(
+                    onContinue = {
+                        navController.navigate(Route.Register.value) {
+                            popUpTo(Route.AuthGraph.value) {
+                                inclusive = false
+                            }
+                        }
+                    },
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
 
-                Screen.AppLimit -> NavEntry(route) {
-                    AppUsageScreen(
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
+        }
 
-                Screen.DeviceLimit -> NavEntry(route) {
-                    DeviceTimeLimitScreen(
-                        onNavigationIconClick = { backStack.removeLastOrNull() }
-                    )
-                }
+        // Main flow
+        navigation(
+            startDestination = Route.Dashboard.value,
+            route = Route.MainGraph.value
+        ) {
+            composable(Route.Dashboard.value) {
+                DashboardRoute(
+                    onDeviceLimitClick = {
+                        navController.navigate(Route.DeviceLimit.value)
+                    },
+                    onAppLimitClick = {
+                        navController.navigate(Route.AppLimit.value)
+                    },
+                    onBlocklistClick = {
+                        navController.navigate(Route.AppBlocklist.value)
+                    },
+                    onNavigationIconClick = { finish() }
+                )
+            }
+            composable(Route.DeviceLimit.value) {
+                DeviceTimeLimitRoute(
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
+            composable(Route.AppLimit.value) {
+                AppTimeLimitRoute(
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
+            }
+            composable(Route.AppBlocklist.value) {
+                AppBlockListRoute(
+                    onNavigationIconClick = { navController.popBackStack() }
+                )
             }
         }
-    )
+    }
 }

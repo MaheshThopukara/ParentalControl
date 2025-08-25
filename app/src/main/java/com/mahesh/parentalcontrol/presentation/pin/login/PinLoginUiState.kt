@@ -4,5 +4,5 @@ data class PinLoginUiState(
     val enteredPin: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
-    val proceedNext: Boolean = false
+    val success: Boolean = false
 )

@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RecoverPinBySecurityQuestionsViewModel @Inject constructor(
+class RecoverByQuestionsViewModel @Inject constructor(
     private val getQuestions: GetSecurityQuestionsUseCase,
     private val verifyAnswers: VerifySecurityAnswersUseCase
 ) : ViewModel() {
-    private val _ui = MutableStateFlow(RecoverPinBySQUiState())
-    val ui: StateFlow<RecoverPinBySQUiState> = _ui
+    private val _ui = MutableStateFlow(RecoverByQuestionsUiState())
+    val ui: StateFlow<RecoverByQuestionsUiState> = _ui
 
     init {
         viewModelScope.launch {

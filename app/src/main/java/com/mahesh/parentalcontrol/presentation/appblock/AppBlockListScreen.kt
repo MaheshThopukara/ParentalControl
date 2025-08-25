@@ -1,6 +1,7 @@
 package com.mahesh.parentalcontrol.presentation.appblock
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -20,17 +22,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.mahesh.parentalcontrol.domain.model.AppBlockList
 
@@ -38,25 +39,24 @@ import com.mahesh.parentalcontrol.domain.model.AppBlockList
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBlockListScreen(
-    viewModel: AppBlockListViewModel = hiltViewModel(),
-    onNavigationIconClick: () -> Unit
+    isEnabled: Boolean,
+    items: List<AppBlockList>,
+    onToggleEnabled: (Boolean) -> Unit,
+    onToggleItem: (packageName: String, checked: Boolean) -> Unit,
+    onNavigationIconClick: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+    modifier: Modifier = Modifier
 ) {
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val appBlockListings by viewModel.appBlockListUiState.collectAsState()
     Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = {
-                    Text(
-                        text = "App Block Listing"
-                    )
-                },
+                title = { Text("App Block Listing") },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigationIconClick() }) {
+                    IconButton(onClick = onNavigationIconClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
+                            contentDescription = "Back"
                         )
                     }
                 },
@@ -68,60 +68,68 @@ fun AppBlockListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
-            item {
-                FilledTonalButton(
-                    modifier = Modifier
-                        .padding(16.dp),
-                    onClick = {
-                        viewModel.setBlockListEnabled(!appBlockListings.isBlockListEnabled)
-                    }
-                ) {
-                    Text(
-                        text = if (appBlockListings.isBlockListEnabled) "Turn Off now" else "Turn On now",
-                    )
+            item("toggle") {
+                val btnLabel by remember(isEnabled) {
+                    mutableStateOf(if (isEnabled) "Turn Off now" else "Turn On now")
                 }
+                FilledTonalButton(
+                    onClick = { onToggleEnabled(!isEnabled) },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) { Text(btnLabel) }
             }
 
-
-            items(appBlockListings.appBlockList) { blockList ->
-                AppBlockListItem(blockList) { appBlockList ->
-                    if (appBlockList.isBlockListed) {
-                        viewModel.deleteFromBlockList(appBlockList.packageName)
-                    } else {
-                        viewModel.addToBlockList(appBlockList.packageName)
-                    }
-                }
+            items(
+                items = items,
+                key = { it.packageName } // stable key avoids unnecessary recompositions
+            ) { app ->
+                AppBlockListRow(
+                    appName = app.appName,
+                    packageName = app.packageName,
+                    icon = app.icon,
+                    checked = app.isBlockListed,
+                    onCheckedChange = { checked -> onToggleItem(app.packageName, checked) }
+                )
+                Divider()
             }
         }
     }
 }
 
+// ---------- Row (stateless leaf) ----------
 @Composable
-fun AppBlockListItem(appBlockList: AppBlockList, onItemClick: (AppBlockList) -> Unit) {
+private fun AppBlockListRow(
+    appName: String,
+    packageName: String,
+    icon: Any, // replace with your actual type for image source
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberAsyncImagePainter(appBlockList.icon),
-            contentDescription = appBlockList.appName,
+            painter = rememberAsyncImagePainter(icon),
+            contentDescription = appName,
             modifier = Modifier.size(40.dp)
         )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = appBlockList.appName,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f) // take up remaining space
-        )
 
+        Spacer(Modifier.width(12.dp))
+
+        Column(Modifier.weight(1f)) {
+            Text(text = appName, fontWeight = FontWeight.Bold)
+            // Optional helper text:
+            // Text(text = packageName, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+        }
 
         Checkbox(
-            checked = appBlockList.isBlockListed,
-            onCheckedChange = { onItemClick(appBlockList) }
+            checked = checked,
+            onCheckedChange = onCheckedChange
         )
     }
 }

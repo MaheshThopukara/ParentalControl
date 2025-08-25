@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,18 +39,19 @@ fun ForgotPinOptionsScreen(
     onRecoverWithCode: () -> Unit,
     onNavigationIconClick: () -> Unit
 ) {
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val topAppBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { Text("Forgot PIN?") },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigationIconClick() }) {
+                    IconButton(onClick = onNavigationIconClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
+                            contentDescription = "Back"
                         )
                     }
                 },
@@ -55,68 +59,71 @@ fun ForgotPinOptionsScreen(
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .padding(24.dp)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                "Choose a recovery method",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            // Recover with Security Questions
-            Card(
-                onClick = onRecoverWithQuestions,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            ) {
-                ListItem(
-                    headlineContent = { Text("Recover with Security Questions") },
-                    supportingContent = { Text("Answer at least 3 of your saved questions.") },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.QuestionAnswer,
-                            contentDescription = null
-                        )
-                    },
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.Key, // simple chevron alt if you prefer
-                            contentDescription = null
-                        )
-                    }
+            item("title") {
+                Text(
+                    "Choose a recovery method",
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
 
-            // Recover with Recovery Code
-            Card(
-                onClick = onRecoverWithCode,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            ) {
-                ListItem(
-                    headlineContent = { Text("Recover with Recovery Code") },
-                    supportingContent = { Text("Enter the one-time code you saved during setup.") },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.Key,
-                            contentDescription = null
-                        )
-                    },
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.Key,
-                            contentDescription = null
-                        )
-                    }
-                )
+            item("questions") {
+                ElevatedCard(
+                    onClick = onRecoverWithQuestions,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    ListItem(
+                        headlineContent = { Text("Recover with Security Questions") },
+                        supportingContent = { Text("Answer at least 3 of your saved questions.") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.QuestionAnswer,
+                                contentDescription = null
+                            )
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
             }
 
-            Spacer(Modifier.height(8.dp))
+            item("code") {
+                ElevatedCard(
+                    onClick = onRecoverWithCode,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    ListItem(
+                        headlineContent = { Text("Recover with Recovery Code") },
+                        supportingContent = { Text("Enter the one-time code you saved during setup.") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.Key,
+                                contentDescription = null
+                            )
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
+            }
+
+            item("spacer") { Spacer(Modifier.height(8.dp)) }
         }
     }
 }

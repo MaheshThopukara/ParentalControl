@@ -1,5 +1,6 @@
 package com.mahesh.parentalcontrol.presentation.pin.login
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,45 +24,38 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PinLoginScreen(
-    viewModel: PinLoginViewModel = hiltViewModel(),
-    onProceedNext: () -> Unit,
+    uiState: PinLoginUiState,
+    onPinChange: (String) -> Unit,
+    onSubmit: () -> Unit,
     onForgotPassword: () -> Unit,
-    onNavigationIconClick: () -> Unit
+    onNavigationIconClick: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+    scrollState: ScrollState,
+    modifier: Modifier = Modifier
 ) {
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    val uiState by viewModel.uiState.collectAsState()
-
-    if (uiState.proceedNext) {
-        onProceedNext()
-        return
-    }
-
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { Text("Enter Parent PIN") },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigationIconClick() }) {
+                    IconButton(onClick = onNavigationIconClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
+                            contentDescription = "Back"
                         )
                     }
                 },
@@ -74,29 +68,36 @@ fun PinLoginScreen(
                 .padding(padding)
                 .padding(24.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
+            // PIN field
             OutlinedTextField(
                 value = uiState.enteredPin,
-                onValueChange = viewModel::onPinChange,
+                onValueChange = onPinChange,
                 label = { Text("Enter PIN") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.NumberPassword,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { if (!uiState.isLoading) onSubmit() }
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
-
-            if (uiState.error != null) {
-                Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+            // Error (only composes when error changes)
+            uiState.error?.let { msg ->
+                Text(msg, color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(Modifier.height(8.dp))
 
+            // Login button (debounced via isLoading)
             Button(
-                onClick = viewModel::onSubmitPin,
+                onClick = onSubmit,
                 enabled = !uiState.isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -111,8 +112,9 @@ fun PinLoginScreen(
                 Text("Login")
             }
 
-            Button(
-                onClick = { onForgotPassword() },
+            // Forgot PIN
+            TextButton(
+                onClick = onForgotPassword,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Forgot PIN?")

@@ -1,12 +1,9 @@
 package com.mahesh.parentalcontrol.presentation.dashboard
 
-import android.health.connect.datatypes.units.Percentage
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mahesh.parentalcontrol.domain.model.AppUsage
 import com.mahesh.parentalcontrol.domain.usecase.GetAppUsageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +15,10 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val getAppUsageUseCase: GetAppUsageUseCase,
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "DashboardViewModel"
+    }
 
     data class App(
         val appName: String = "",
@@ -35,6 +36,7 @@ class DashboardViewModel @Inject constructor(
     val topAppUiState: StateFlow<TopAppUiState> = _topAppUiState
 
     init {
+        Log.d(TAG, "init: ${hashCode()}")
         loadApps()
     }
 
@@ -67,9 +69,9 @@ class DashboardViewModel @Inject constructor(
             }
             val totalApps = topApps.toMutableList()
             val othersScreenTime = apps.drop(3).sumOf { it.screenTimeMillis }
-            val percentage = try{
+            val percentage = try {
                 (othersScreenTime * 100 / totalScreenTime).toInt()
-            } catch (exception: ArithmeticException){
+            } catch (exception: ArithmeticException) {
                 0
             }
             if (percentage != 0) {

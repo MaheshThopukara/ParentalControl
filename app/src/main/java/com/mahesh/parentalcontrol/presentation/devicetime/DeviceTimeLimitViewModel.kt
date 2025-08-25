@@ -17,7 +17,7 @@ class DeviceTimeLimitViewModel @Inject constructor(
     private val getDeviceTimeLimitUseCase: GetDeviceTimeLimitUseCase,
     private val updateDeviceTimeLimitUseCase: UpdateDeviceTimeLimitUseCase
 ) : ViewModel() {
-    private val _deviceTimeLimit = MutableStateFlow<DeviceTimeLimit>(DeviceTimeLimit())
+    private val _deviceTimeLimit = MutableStateFlow(DeviceTimeLimit())
     val deviceTimeLimit: StateFlow<DeviceTimeLimit> = _deviceTimeLimit
 
     init {

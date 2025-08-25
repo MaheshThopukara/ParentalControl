@@ -1,4 +1,4 @@
-package com.mahesh.parentalcontrol.presentation.pin.questions
+package com.mahesh.parentalcontrol.presentation.pin.forgot
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,13 +33,18 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.mahesh.parentalcontrol.domain.model.SecurityQuestion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecurityQuestionsSetupScreen(
-    state: SecurityQuestionsSetupUiState,
+fun RecoverByQuestionsScreen(
+    minRequired: Int,
+    questions: List<SecurityQuestion>,              // data class with stable key field
+    answers: Map<String, String>,
+    isSubmitting: Boolean,
+    error: String?,
     onAnswerChanged: (key: String, value: String) -> Unit,
-    onSave: () -> Unit,
+    onSubmit: () -> Unit,
     onNavigationIconClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier
@@ -50,7 +55,7 @@ fun SecurityQuestionsSetupScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("Security Questions") },
+                title = { Text("Recover with Security Questions") },
                 navigationIcon = {
                     IconButton(onClick = onNavigationIconClick) {
                         Icon(
@@ -66,68 +71,69 @@ fun SecurityQuestionsSetupScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .padding(24.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item(key = "intro") {
+            item("intro") {
                 Text(
-                    "Answer all 5 questions. You'll need at least 3 correct answers to recover your PIN.",
+                    "Answer at least $minRequired questions correctly to reset your PIN.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
             items(
-                items = state.questions,
-                key = { it.key } // ensure stable identity; avoids recompose for unchanged items
-            ) { question ->
+                items = questions,
+                key = { it.key } // keeps rows stable; unchanged ones skip recomposition
+            ) { q ->
                 Column(Modifier.fillMaxWidth()) {
-                    Text(question.text, style = MaterialTheme.typography.titleSmall)
+                    Text(q.text, style = MaterialTheme.typography.titleSmall)
                     OutlinedTextField(
-                        value = state.answers[question.key].orEmpty(),
-                        onValueChange = { onAnswerChanged(question.key, it) },
+                        value = answers[q.key].orEmpty(),
+                        onValueChange = { onAnswerChanged(q.key, it) },
                         singleLine = true,
+                        placeholder = { Text("Enter answer") },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
-                            imeAction = if (question == state.questions.last()) ImeAction.Done else ImeAction.Next
+                            imeAction =
+                                if (q == questions.last()) ImeAction.Done else ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) },
                             onDone = {
-                                if (!state.isSaving) {
+                                if (!isSubmitting) {
                                     focusManager.clearFocus(force = true)
-                                    onSave()
+                                    onSubmit()
                                 }
                             }
                         ),
-                        placeholder = { Text("Enter answer") },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
 
-            item(key = "error") {
-                state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            item("error") {
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
 
-            item(key = "continue") {
+            item("submit") {
                 Button(
                     onClick = {
                         focusManager.clearFocus(force = true)
-                        onSave()
+                        onSubmit()
                     },
-                    enabled = !state.isSaving,
+                    enabled = !isSubmitting,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    if (state.isSaving) {
+                    if (isSubmitting) {
                         CircularProgressIndicator(
+                            strokeWidth = 2.dp,
                             modifier = Modifier
                                 .size(18.dp)
-                                .padding(end = 8.dp),
-                            strokeWidth = 2.dp
+                                .padding(end = 8.dp)
                         )
                     }
-                    Text("Continue")
+                    Text("Verify & Continue")
                 }
             }
 

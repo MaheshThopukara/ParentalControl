@@ -39,7 +39,7 @@ class RecoveryCodeViewModel @Inject constructor(
     fun markShown() {
         viewModelScope.launch {
             markRecoveryCodeShownUseCase()
-            _ui.update { it.copy(proceedNext = true) }
+            _ui.update { it.copy(`continue` = true) }
         }
     }
 }
