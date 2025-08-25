@@ -1,9 +1,16 @@
 package com.mahesh.parentalcontrol.core.di
 
 import android.content.Context
+import com.mahesh.parentalcontrol.data.local.dao.SecurityDao
 import com.mahesh.parentalcontrol.data.repository.AppUsageRepositoryImpl
+import com.mahesh.parentalcontrol.data.repository.PinRepositoryImpl
+import com.mahesh.parentalcontrol.data.repository.RecoveryCodeRepositoryImpl
+import com.mahesh.parentalcontrol.data.repository.SecurityQuestionsRepositoryImpl
 import com.mahesh.parentalcontrol.data.repository.SuspendedAppRepositoryImpl
 import com.mahesh.parentalcontrol.domain.repository.AppUsageRepository
+import com.mahesh.parentalcontrol.domain.repository.PinRepository
+import com.mahesh.parentalcontrol.domain.repository.RecoveryCodeRepository
+import com.mahesh.parentalcontrol.domain.repository.SecurityQuestionsRepository
 import com.mahesh.parentalcontrol.domain.repository.SuspendedAppRepository
 import dagger.Module
 import dagger.Provides
@@ -27,4 +34,23 @@ object DataModule {
     fun provideSuspendedAppRepository(
         @ApplicationContext context: Context
     ): SuspendedAppRepository = SuspendedAppRepositoryImpl(context)
+
+    @Provides
+    @Singleton
+    fun providePinRepository(
+        @ApplicationContext context: Context
+    ): PinRepository = PinRepositoryImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideSecurityQuestionsRepository(
+        @ApplicationContext context: Context,
+        dao: SecurityDao
+    ): SecurityQuestionsRepository = SecurityQuestionsRepositoryImpl(context, dao)
+
+    @Provides
+    @Singleton
+    fun provideRecoveryCodeRepository(
+        @ApplicationContext context: Context
+    ): RecoveryCodeRepository = RecoveryCodeRepositoryImpl(context)
 }

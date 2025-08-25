@@ -1,0 +1,10 @@
+<resources>
+    <!-- Canonical keys; order = display order -->
+    <string-array name="security_question_keys">
+        <item>q_city_partner</item>
+        <item>q_first_school</item>
+        <item>q_favorite_teacher_lastname</item>
+        <item>q_anniversary_month</item>
+        <item>q_childhood_nickname</item>
+    </string-array>
+</resources>

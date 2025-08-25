@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ParentalControl</string>
+
+    <string name="q_city_partner">City where you met your partner?</string>
+    <string name="q_first_school">Your first school name?</string>
+    <string name="q_favorite_teacher_lastname">Favorite teacher’s last name?</string>
+    <string name="q_anniversary_month">Month of your wedding/anniversary?</string>
+    <string name="q_childhood_nickname">Childhood nickname?</string>
 </resources>

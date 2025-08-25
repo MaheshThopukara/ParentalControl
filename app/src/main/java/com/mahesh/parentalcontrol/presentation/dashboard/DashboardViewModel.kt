@@ -49,7 +49,11 @@ class DashboardViewModel @Inject constructor(
             val totalScreenTime = apps.sumOf { it.screenTimeMillis }
             val top3Apps = apps.take(3)
             val topApps = top3Apps.mapIndexedNotNull { index, it ->
-                val percentage = (it.screenTimeMillis * 100 / totalScreenTime).toInt()
+                val percentage = try {
+                    (it.screenTimeMillis * 100 / totalScreenTime).toInt()
+                } catch (exception: ArithmeticException) {
+                    0
+                }
                 if (percentage == 0) {
                     null
                 } else {
@@ -63,7 +67,11 @@ class DashboardViewModel @Inject constructor(
             }
             val totalApps = topApps.toMutableList()
             val othersScreenTime = apps.drop(3).sumOf { it.screenTimeMillis }
-            val percentage = (othersScreenTime * 100 / totalScreenTime).toInt()
+            val percentage = try{
+                (othersScreenTime * 100 / totalScreenTime).toInt()
+            } catch (exception: ArithmeticException){
+                0
+            }
             if (percentage != 0) {
                 totalApps.add(
                     App(

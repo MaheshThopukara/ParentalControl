@@ -6,6 +6,7 @@ import com.mahesh.parentalcontrol.data.local.AppDatabase
 import com.mahesh.parentalcontrol.data.local.dao.AppBlockListDao
 import com.mahesh.parentalcontrol.data.local.dao.AppLimitDao
 import com.mahesh.parentalcontrol.data.local.dao.DeviceTimeLimitDao
+import com.mahesh.parentalcontrol.data.local.dao.SecurityDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,11 +30,18 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideAppLimitDao(db: AppDatabase): AppLimitDao = db.appLimitDao()
 
     @Provides
+    @Singleton
     fun provideAppBlockListDao(db: AppDatabase): AppBlockListDao = db.appBlockListDao()
 
     @Provides
+    @Singleton
     fun provideDeviceTimeLimitDao(db: AppDatabase): DeviceTimeLimitDao = db.deviceTimeLimitDao()
+
+    @Provides
+    @Singleton
+    fun provideSecurityDao(db: AppDatabase): SecurityDao = db.securityDao()
 }
