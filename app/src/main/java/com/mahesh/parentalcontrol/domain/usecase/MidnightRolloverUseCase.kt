@@ -19,6 +19,7 @@ class MidnightRolloverUseCase(
 
         val appTimeLimits = appLimitDao.getAllLimits()
         appTimeLimits.forEach { limit ->
+            // If app is in block list do not unblock
             if (!blockListPkgs.contains(limit.packageName) && !isBlockListEnabled) {
                 suspendedAppRepository.resumeApp(packageName = limit.packageName)
             }

@@ -17,6 +17,8 @@ navigation3 = "1.0.0-alpha07"
 
 # Dependency Injection
 hilt = "2.57"
+work = "2.9.1"
+hiltWork = "1.2.0"
 hiltNavigationCompose = "1.2.0"
 
 # Database
@@ -49,7 +51,6 @@ androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "extendedIcons" }
 
-
 # Navigation
 androidx-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
@@ -59,6 +60,8 @@ androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 # Hilt
+work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }

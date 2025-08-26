@@ -15,6 +15,7 @@ import com.mahesh.parentalcontrol.domain.usecase.GetAppBlockListUseCase
 import com.mahesh.parentalcontrol.domain.usecase.GetAppBlockSettingUseCase
 import com.mahesh.parentalcontrol.domain.usecase.GetAppUsageUseCase
 import com.mahesh.parentalcontrol.domain.usecase.GetDeviceTimeLimitUseCase
+import com.mahesh.parentalcontrol.domain.usecase.MidnightRolloverUseCase
 import com.mahesh.parentalcontrol.domain.usecase.SetAppBlockListUseCase
 import com.mahesh.parentalcontrol.domain.usecase.SetAppBlockSettingUseCase
 import com.mahesh.parentalcontrol.domain.usecase.SuspendAppUseCase
@@ -185,5 +186,18 @@ object DomainModule {
         recoveryCodeRepository: RecoveryCodeRepository
     ) = IsRecoveryCodeShownUseCase(recoveryCodeRepository)
 
+    @Provides
+    @Singleton
+    fun provideMidnightRolloverUseCase(
+        appUsageRepository: AppUsageRepository,
+        suspendedAppRepository: SuspendedAppRepository,
+        appLimitDao: AppLimitDao,
+        appBlockListDao: AppBlockListDao
+    ) = MidnightRolloverUseCase(
+        appUsageRepository,
+        suspendedAppRepository,
+        appLimitDao,
+        appBlockListDao
+    )
 
 }

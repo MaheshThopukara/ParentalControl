@@ -45,6 +45,9 @@ dependencies {
     // Core
     implementation(libs.androidx.core.ktx)
 
+    // Work Manager
+    implementation(libs.work.runtime.ktx)
+
     // Lifecycle & Activity
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -62,6 +65,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.work)
 
     // Coil (Image Loading)
     implementation(libs.coil.compose)
