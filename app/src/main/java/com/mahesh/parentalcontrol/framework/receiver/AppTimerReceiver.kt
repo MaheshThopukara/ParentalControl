@@ -13,12 +13,12 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AppTimerReceiver : BroadcastReceiver() {
 
-   // @Inject lateinit var suspendAppUseCase: SuspendAppUseCase
+   @Inject lateinit var suspendAppUseCase: SuspendAppUseCase
 
     override fun onReceive(context: Context, intent: Intent) {
         val packageName = intent.getStringExtra("PACKAGE_NAME") ?: return
         CoroutineScope(Dispatchers.IO).launch {
-           // suspendAppUseCase(packageName)
+           suspendAppUseCase(packageName)
         }
 
         // Display dialog if user watching UI

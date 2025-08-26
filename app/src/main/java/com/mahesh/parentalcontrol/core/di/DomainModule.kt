@@ -33,36 +33,36 @@ import com.mahesh.parentalcontrol.domain.usecase.pin.VerifySecurityAnswersUseCas
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object DomainModule {
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetAppUsageUseCase(
         repository: AppUsageRepository,
         limitDao: AppLimitDao
     ) = GetAppUsageUseCase(repository, limitDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideAddAppTimeLimitUseCase(
         repository: AppUsageRepository,
         limitDao: AppLimitDao
     ) = AddAppTimeLimitUseCase(repository, limitDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideUpdateAppTimeLimitUseCase(
         repository: AppUsageRepository,
         limitDao: AppLimitDao
     ) = UpdateAppTimeLimitUseCase(repository, limitDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideDeleteAppTimeLimitUseCase(
         appUsageRepository: AppUsageRepository,
         suspendedAppRepository: SuspendedAppRepository,
@@ -70,85 +70,85 @@ object DomainModule {
     ) = DeleteAppTimeLimitUseCase(appUsageRepository, suspendedAppRepository, limitDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetAppBlockListUseCase(
         repository: AppUsageRepository,
         appBlockListDao: AppBlockListDao
     ) = GetAppBlockListUseCase(repository, appBlockListDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSetAppBlockSettingUseCase(
         suspendedAppRepository: SuspendedAppRepository,
         appBlockListDao: AppBlockListDao
     ) = SetAppBlockSettingUseCase(suspendedAppRepository, appBlockListDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetAppBlockSettingUseCase(
         appBlockListDao: AppBlockListDao
     ) = GetAppBlockSettingUseCase(appBlockListDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSetAppBlockListUseCase(
         suspendedAppRepository: SuspendedAppRepository,
         appBlockListDao: AppBlockListDao
     ) = SetAppBlockListUseCase(suspendedAppRepository, appBlockListDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideDeleteAppBlockListUseCase(
         suspendedAppRepository: SuspendedAppRepository,
         appBlockListDao: AppBlockListDao
     ) = DeleteAppBlockListUseCase(suspendedAppRepository, appBlockListDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSuspendAppUseCase(
         suspendedAppRepository: SuspendedAppRepository
     ) = SuspendAppUseCase(suspendedAppRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetDeviceTimeLimitUseCase(
         deviceTimeLimitDao: DeviceTimeLimitDao
     ) = GetDeviceTimeLimitUseCase(deviceTimeLimitDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideUpdateDeviceTimeLimitUseCase(
         deviceTimeLimitDao: DeviceTimeLimitDao
     ) = UpdateDeviceTimeLimitUseCase(deviceTimeLimitDao)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSavePinUseCase(
         pinRepository: PinRepository
     ) = SavePinUseCase(pinRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideValidatePinStrengthUseCase() = ValidatePinStrengthUseCase()
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideValidatePinUseCase(pinRepository: PinRepository) = ValidatePinUseCase(pinRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGetSecurityQuestionsUseCase(
         securityQuestionsRepository: SecurityQuestionsRepository
     ) = GetSecurityQuestionsUseCase(securityQuestionsRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideSaveSecurityAnswersUseCase(
         securityQuestionsRepository: SecurityQuestionsRepository
     ) = SaveSecurityAnswersUseCase(securityQuestionsRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideVerifySecurityAnswersUseCase(
         securityQuestionsRepository: SecurityQuestionsRepository,
         pinRepository: PinRepository,
@@ -160,13 +160,13 @@ object DomainModule {
     )
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideGenerateAndStoreRecoveryCodeUseCase(
         recoveryCodeRepository: RecoveryCodeRepository
     ) = GenerateAndStoreRecoveryCodeUseCase(recoveryCodeRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideVerifyRecoveryCodeUseCase(
         recoveryCodeRepository: RecoveryCodeRepository,
         pinRepository: PinRepository,
@@ -174,13 +174,13 @@ object DomainModule {
     ) = VerifyRecoveryCodeUseCase(recoveryCodeRepository, pinRepository, recoveryCodeRepository1)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideMarkRecoveryCodeShownUseCase(
         recoveryCodeRepository: RecoveryCodeRepository
     ) = MarkRecoveryCodeShownUseCase(recoveryCodeRepository)
 
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun provideIsRecoveryCodeShownUseCase(
         recoveryCodeRepository: RecoveryCodeRepository
     ) = IsRecoveryCodeShownUseCase(recoveryCodeRepository)
